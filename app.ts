@@ -6,6 +6,7 @@ import helmet from "helmet";
 import 'reflect-metadata';
 import { createExpressServer } from 'routing-controllers';
 import { UserController } from "./app/controller/UserController";
+import { AuthController } from "./app/controller/AuthController";
 
 export class App {
   private app;
@@ -14,13 +15,13 @@ export class App {
     this.app = express();
     this.app.use(cors());
     this.app.use(bodyParser.json());
-    this.app.use(bodyParser.urlencoded({ extended: true }));
+    this.app.use(bodyParser.urlencoded({ extended: false }));
     this.app.use(helmet());
     this.app.use(bodyParser.json());
     this.boostrap();
     const crateServer = createExpressServer(
         {
-            controllers: [UserController],
+            controllers: [UserController, AuthController],
         }
     );
     this.app.use(crateServer);

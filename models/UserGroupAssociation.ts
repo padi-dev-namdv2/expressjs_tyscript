@@ -10,7 +10,7 @@ import { User } from "./User";
 import { Group } from "./Group";
 
 @Table({
-  tableName: "user_group_association",
+  tableName: "usergroupassociations",
 })
 export class UserGroupAssociation extends Model {
   @BelongsTo(() => User)
