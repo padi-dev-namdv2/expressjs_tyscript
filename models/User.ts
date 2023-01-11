@@ -4,11 +4,13 @@ import {
   DataType,
   HasMany,
   Model,
+  BelongsToMany
 } from "sequelize-typescript";
 import { UserGroupAssociation } from "./UserGroupAssociation";
+import { Group } from "./Group";
 import { Sequelize } from "sequelize-typescript";
 import { Blog } from "./Blog";
-import { MinLength, MaxLength, IsNotEmpty, IsEmail} from "class-validator";
+import { MinLength, MaxLength, IsNotEmpty, IsEmail, IsEmpty, minLength} from "class-validator";
 
 @Table({
   tableName: "users",
@@ -27,6 +29,8 @@ export class User extends Model {
   @MinLength(7, {
     message: 'Email không được ít hơn 7 ký tự'
   })
+  
+  @Column({ unique: true, type: DataType.STRING })
   @MaxLength(255)
   public email!: string;
 
@@ -35,7 +39,9 @@ export class User extends Model {
     message: 'Mật khẩu phải dài hơn 6 ký tự'
   })
   @MaxLength(30)
-  @IsNotEmpty()
+  @IsNotEmpty({
+    message: 'Mật khẩu không được để trống'
+  })
   public password!: string;
 
   @Column({ type: DataType.DATE })
@@ -46,6 +52,11 @@ export class User extends Model {
 
   @HasMany(() => UserGroupAssociation)
   public userGroupAssociation?: UserGroupAssociation[];
+
+  @BelongsToMany(() => Group, {
+    through: { model: () => UserGroupAssociation },
+  })
+  public group?: Group[];
 
   @HasMany(() => Blog)
   public blog?: Blog[]

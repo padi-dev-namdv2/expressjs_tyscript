@@ -16,4 +16,4 @@ export const initDB = async () => {
   await sequelize.authenticate();
   await sequelize.sync({ alter: true });
 };
-export { User, Group, UserGroupAssociation, Blog };
+export { User, Group, UserGroupAssociation, Blog, sequelize };
