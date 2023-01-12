@@ -3,10 +3,12 @@ import { initDB } from "./connection";
 const cors = require('cors');
 const bodyParser = require('body-parser')
 import helmet from "helmet";
+const multer = require("multer");
 import 'reflect-metadata';
 import { createExpressServer } from 'routing-controllers';
 import { UserController } from "./app/controller/UserController";
 import { AuthController } from "./app/controller/AuthController";
+import { BlogController } from "./app/controller/BlogController";
 
 export class App {
   private app;
@@ -21,7 +23,7 @@ export class App {
     this.boostrap();
     const crateServer = createExpressServer(
         {
-            controllers: [UserController, AuthController],
+            controllers: [UserController, AuthController, BlogController],
         }
     );
     this.app.use(crateServer);

@@ -59,7 +59,7 @@ export class UserService {
   }
 
   async userDetail(id: number) {
-    return await User.findOne({
+    const userDetail: User = await User.findOne({
       attributes: ["name", "email", "createdAt"],
       where: {
         id: id,
@@ -72,6 +72,8 @@ export class UserService {
         }
       ],
     });
+
+    return userDetail
   }
 
   async storeUser(params: any) {

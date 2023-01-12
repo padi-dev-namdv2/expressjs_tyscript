@@ -1,4 +1,4 @@
-import { Controller, Param, Body, Get, Post, Put, Delete, UseBefore, Res, Req } from 'routing-controllers';
+import { Controller, Param, Body, Get, Post, Put, Delete, UseBefore, UseAfter, Res, Req } from 'routing-controllers';
 import { checkJwt } from '../middlewares/checkJwt';
 import { BaseController } from './BaseController';
 import { User, Blog } from '../../models/index';
@@ -10,28 +10,27 @@ import { validate } from "class-validator";
 @UseBefore(checkJwt)
 @Service()
 export class UserController extends BaseController {
-  constructor(private userService: UserService ) {
+  private userService: UserService;
+  constructor() {
     super();
+    this.userService = new UserService();
   }
   @Get('/users')
-  async getAll(@Res() response: any, @Req() request: any ) {
-    const userServiceInstance = Container.get(UserController);
-    const listUsers: any = await userServiceInstance.userService.getListUser(request.query);
+  async getAll(@Res() response: any, @Req() request: any) {
+    const listUsers: any = await this.userService.getListUser(request.query);
 
     return this.withData<any>(response, listUsers);
   }
 
   @Get('/users/:id')
   async getOne(@Param('id') id: number, @Res() response: any, @Req() request: any) {
-    const userServiceInstance = Container.get(UserController);
-    const userDetail: any =  await userServiceInstance.userService.userDetail(id);
+    const userDetail: any =  await this.userService.userDetail(id);
 
-    return this.withData<any>(response, userDetail);
+    return !userDetail ? this.notFound(response) : this.withData<any>(response, userDetail);
   }
 
   @Post('/users')
   async post(@Body() user: any, @Res() response: any, @Req() request: any) {
-    const userServiceInstance = Container.get(UserController);
     var userValidate: User = new User();
     userValidate.name = user.name;
     userValidate.email = user.email;
@@ -53,7 +52,7 @@ export class UserController extends BaseController {
       return this.errorValidate(response, errorMessage);
     }
 
-    const createUser: any = userServiceInstance.userService.storeUser(user);
+    const createUser: any = await this.userService.storeUser(user);
 
     return !createUser ? this.errorIntenal(response, 'Đã xảy ra lỗi') : this.created(response);
   }

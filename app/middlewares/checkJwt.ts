@@ -10,7 +10,11 @@ export const checkJwt = (req: Request, res: Response, next: NextFunction) => {
         jwtPayload = <any>jwt.verify(token, config.jwtSecret);
         res.locals.jwtPayload = jwtPayload;
     } catch (error) {
-        res.status(401).send();
+        res.status(401).json({
+            success: false,
+            code: 401,
+            message: "Phiên đăng nhập hết hạn!"
+        });
         return;
     }
 

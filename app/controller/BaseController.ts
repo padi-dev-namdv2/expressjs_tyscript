@@ -1,5 +1,8 @@
 import * as express from 'express'
+import { CustomErrorHandler } from '../middlewares/customErrorHandler';
+import { UseAfter, UseBefore } from 'routing-controllers';
 
+@UseAfter(CustomErrorHandler)
 export abstract class BaseController {
 
   /**
@@ -30,14 +33,20 @@ export abstract class BaseController {
 //     }
 //   }
 
-  public jsonResponse (res: express.Response, code: number, message: string) {
-    return res.status(code).json({ message })
+  public jsonResponse (res: express.Response, code: number, message: string, success: boolean) {
+    return res.status(code).json({
+      success: success,
+      code: code,
+      message: message
+    })
   }
 
   public withData<T> (res: express.Response, dto?: T, message?: string) {
     if (!!dto) {
       res.type('application/json');
       return res.status(200).json({
+        success: true,
+        code: 200,
         data: dto,
         message: message ? message : 'Lấy dữ liệu thành công!'
       });
@@ -47,49 +56,50 @@ export abstract class BaseController {
   }
 
   public errorValidate<T>(res: express.Response, dto?: T) {
-    return res.status(422).json(dto);
+    return res.status(400).json({
+      success: false,
+      code: 400,
+      message: dto,
+    })
   }
 
-  public created (res: express.Response) {
-    return res.sendStatus(201);
+  public created (res: express.Response, message?: string) {
+    return this.jsonResponse(res, 201, message ? message : 'Creted Success!', false);
   }
 
   public clientError (res: express.Response, message?: string) {
-    return this.jsonResponse(res, 400, message ? message : 'Unauthorized');
+    return this.jsonResponse(res, 400, message ? message : 'Unauthorized', false);
   }
 
   public unauthorized (res: express.Response, message?: string) {
-    return this.jsonResponse(res, 401, message ? message : 'Unauthorized');
+    return this.jsonResponse(res, 401, message ? message : 'Unauthorized', false);
   }
 
   public paymentRequired (res: express.Response, message?: string) {
-    return this.jsonResponse(res, 402, message ? message : 'Payment required');
+    return this.jsonResponse(res, 402, message ? message : 'Payment required', false);
   }
 
   public forbidden (res: express.Response, message?: string) {
-    return this.jsonResponse(res, 403, message ? message : 'Forbidden');
+    return this.jsonResponse(res, 403, message ? message : 'Forbidden', false);
   }
 
   public notFound (res: express.Response, message?: string) {
-    return this.jsonResponse(res, 404, message ? message : 'Not found');
+    return this.jsonResponse(res, 404, message ? message : 'Not found', false);
   }
 
   public conflict (res: express.Response, message?: string) {
-    return this.jsonResponse(res, 409, message ? message : 'Conflict');
+    return this.jsonResponse(res, 409, message ? message : 'Conflict', false);
   }
 
   public tooMany (res: express.Response, message?: string) {
-    return this.jsonResponse(res, 429, message ? message : 'Too many requests');
+    return this.jsonResponse(res, 429, message ? message : 'Too many requests', false);
   }
 
   public todo (res: express.Response) {
-    return this.jsonResponse(res, 400, 'TODO');
+    return this.jsonResponse(res, 400, 'TODO', false);
   }
 
   public errorIntenal (res: express.Response, error: Error | string) {
-    console.log(error);
-    return res.status(500).json({
-      message: error.toString()
-    })
+    return this.jsonResponse(res, 500, 'Error Intenal!', false);
   }
 }
