@@ -51,7 +51,11 @@ export abstract class BaseController {
         message: message ? message : 'Lấy dữ liệu thành công!'
       });
     } else {
-      return res.sendStatus(200);
+      return res.status(200).json({
+        success: true,
+        code: 200,
+        message: message ? message : 'Success!'
+      });
     }
   }
 

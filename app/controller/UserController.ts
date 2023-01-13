@@ -5,15 +5,21 @@ import { User, Blog } from '../../models/index';
 import { Container, Service } from 'typedi';
 import { UserService } from '../services/UserService';
 import { validate } from "class-validator";
+import { Helper } from '../../ultils/Helper/Helper';
+import { get } from 'http';
+import { mainOptionsEmail } from '../../config/templateEmail';
+import { sendNewEmail } from '../queues/sendMailQueue';
 
 @Controller()
 @UseBefore(checkJwt)
 @Service()
 export class UserController extends BaseController {
   private userService: UserService;
+  private helper: Helper;
   constructor() {
     super();
     this.userService = new UserService();
+    this.helper = new Helper();
   }
   @Get('/users')
   async getAll(@Res() response: any, @Req() request: any) {
@@ -66,4 +72,12 @@ export class UserController extends BaseController {
   remove(@Param('id') id: number, @Res() response: any, @Req() request: any) {
     return 'Removing user...';
   }
+
+  @Post('/user/send-mail')
+  async sendMail(@Body() mail: string, @Req() request: any, @Res() response: any) {
+    const sendMail: any = await sendNewEmail(mainOptionsEmail('kakitani2000@gmail.com', 'Namdv gửi mail test!'));
+
+    return this.withData(response);
+  }
+
 }
