@@ -41,6 +41,7 @@ export class UserService {
         {
           model: Blog,
           attributes: ["id", "title"],
+          required: false,
           where: Object.keys(filterBlog).length ? filterBlog : null,
         },
         {
@@ -81,25 +82,27 @@ export class UserService {
     const t = await sequelize.transaction();
     try {
         const user: User = await User.create(
-            {
-                name: params.name,
-                email: params.email,
-                password: await bcrypt.hash(params.password, salt),
-            },
-            { transaction: t }
+          {
+            name: params.name,
+            email: params.email,
+            password: await bcrypt.hash(params.password, salt),
+          },
+          { transaction: t }
         );
 
-        const insertUserGroup: any = Object(params.group_ids).map(function (item: number) {
+        if (Object.keys(params.group_ids).length) {
+          const insertUserGroup: any = Object(params.group_ids).map(function (item: number) {
             return {
               userId: user.id,
               groupId: item
             }
-        });
+          });
 
-        const userGroupAssociation = await UserGroupAssociation.bulkCreate(
+          const userGroupAssociation = await UserGroupAssociation.bulkCreate(
             insertUserGroup,
             { transaction: t }
-        )
+          )
+        }
 
         await t.commit();
         console.log("đã commit!");

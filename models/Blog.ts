@@ -28,6 +28,9 @@ export class Blog extends Model {
   @Column({ type: DataType.INTEGER })
   public userId!: number;
 
+  @Column({ type: DataType.INTEGER })
+  public count_view!: number;
+
   @Column({ type: DataType.STRING })
   public thumbmail!: string;
 

@@ -1,4 +1,4 @@
-import { Controller, Param, Body, Get, Post, Put, Delete, UseBefore, Res, Req, UploadedFile, UploadedFiles, UseAfter} from 'routing-controllers';
+import { Controller, Param, Body, Get, Post, Put, Delete, UseBefore, Res, Req, UploadedFile, UploadedFiles, UseAfter, Session} from 'routing-controllers';
 import { checkJwt } from '../middlewares/checkJwt';
 import { validate } from "class-validator";
 import { Container, Service } from 'typedi';
@@ -36,5 +36,12 @@ export class BlogController extends BaseController {
         const storePost = await this.blogService.storePost(blog, imageBlog);
 
         return !storePost ? this.errorIntenal(response, 'Đã xảy ra lỗi') : this.created(response);
+    }
+
+    @Get('/blog/:id')
+    async getOneBlog(@Param('id') id: number, @Session() session: any, @Res() response: any, @Req() request: any) {
+        const getOneBlog: any = await this.blogService.getOneBlog(id, session, request.headers["x-api-key"]);
+
+        return getOneBlog ? this.withData(response, getOneBlog) : this.notFound(response, 'Not Found');
     }
 }

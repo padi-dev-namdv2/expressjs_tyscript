@@ -16,9 +16,17 @@ import { Container, Service } from "typedi";
 import { Op, Transaction } from "sequelize";
 import { sequelize } from "../../models/index";
 import { ImageBlog } from "../../models/Imageblog";
+import { EventDispatcher } from "event-dispatch";
+import "../events/checkViewUpBLogEvent";
+import { Helper } from "../../ultils/Helper/Helper";
 
 @Service()
 export class BlogService {
+    private helper: Helper;
+    constructor() {
+        this.helper = new Helper();
+    }
+
     async listBlog(params: any) {
         const limitRow = 5;
         const offset = params.page ? (params.page - 1) * limitRow : 0;
@@ -80,5 +88,25 @@ export class BlogService {
             await t.rollback();
             return false;
         }
+    }
+
+    async getOneBlog(id: number, session: any, jwt: string) {
+        var blog: Blog = await Blog.findOne({
+            where: {
+                id: id
+            }
+        });
+
+        if (blog) {
+            const user: User = await this.helper.getAuthUser(jwt);
+            let eventDispatcher: EventDispatcher = new EventDispatcher(); // check view by session
+            eventDispatcher.dispatch("checkUpViewSession", {
+                blog: blog,
+                session: session,
+                user: user
+            });
+        }
+        
+        return blog;
     }
 }

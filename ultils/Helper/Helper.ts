@@ -1,4 +1,6 @@
 import { transporter } from "../../config/configMail";
+import { User } from "../../models";
+import jwt_decode from "jwt-decode";
 
 export class Helper {
     async sendMail(email: string, res: any, req: any) {
@@ -20,6 +22,17 @@ export class Helper {
         }
         await transporter().sendMail(mainOptions, function(err: any, info: any){
             return err ? false : true;
+        });
+    }
+
+    async getAuthUser(jwt: string) {
+        const decodedHeader: object = jwt_decode(jwt);
+
+        return await User.findOne({
+            attributes: ["id", "name", "email"],
+            where: {
+                id: decodedHeader['id']
+            }
         });
     }
 }
